@@ -101,6 +101,6 @@ def defendcost(vec):
   54 - 74 is -20. The # 20 shows up again. We could just normalize everything to a +ive int.
   Because (I *think*) whether we over allocated or under allocated doesn't actually matter does it? They're
   both just a mis-allocation of X amount.
-  ""
+  """
 
 
