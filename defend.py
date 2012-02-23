@@ -1,6 +1,5 @@
-from operator import itemgetter
-import pprint
 import random
+import optimization
 
 castles = [
   #                   % of fighting
@@ -50,57 +49,66 @@ brothers = [
 
 #What a solution looks like:
 # [0,1,2,0,2,0,1,0,0,2,1,2,0,0,1,0,2,1,1,0,2,1,0...]
+#where each index slot represents a particular brother
+#from the brothers list
 
 #What the domain looks like
 # [(0,2),(0,2),(0,2),(0,2),(0,2),(0,2),(0,2)...]
 domain = [(0,2)] * len(brothers)
 
+#This is just used for informal testing of the cost fn
 randomvec = [random.randint(domain[i][0],domain[i][1])
              for i in range(len(domain))]
-print randomvec
 
+#Add up the total strength for each skill possessed by a brother
 totarrowstrength = sum([i[1] for i in brothers])
 totclosestrength = sum([i[2] for i in brothers])
-
-print totarrowstrength, totclosestrength
+print "Total arrow strength of the Night's Watch: %s" % totarrowstrength
+print "Total close-range strength of the Night's Watch: %s " % totclosestrength
 
 def defendcost(vec):
-  #Start by just being happy to evenly distribute brothers among
-  #the castles.
-
-  #After that, consider fighting style of each castle.
-
   cost = 0
 
-  #Add brothers to the castles
+  #Start by just being happy to evenly distribute brothers among
+  #the castles. After that, maybe consider the fighting style 
+  #of each castle.
+
+  #Make sure castles are empty
+  for c in range(len(castles)):
+    castles[c][3] = []
+
+  #Add brothers to the castles based on the solution vector passed in
   for b in range(len(vec)):
     castles[vec[b]][3].append(b)
 
-  #Ideal arrow and close strength at each castle
+  #Ideal arrow and close strength value at each castle.
+  #This is simple right now becuase we're just dividing total
+  #strengths by # of castles. It will get more difficult
+  #when we have to determine the fighting conditions of each
+  #castle (i.e. how much is arrow fighting and how much close combat)
   optimalarrowstrength = int(totarrowstrength) / len(castles)
   optimalclosestrength = int(totclosestrength) / len(castles)
+  #print "Optimal arrow strength: %s, optimal close strength: %s " % (optimalarrowstrength, optimalclosestrength)
 
-  print "Optimal arrow strength: %s, optimal close strength: %s " % (optimalarrowstrength, optimalclosestrength)
-
-  #Determine how strength was distributed
-
+  #Loop through the castles and determine how strength was 
+  #distributed and calculate cost
   for c in range(len(castles)):
     castlebrothers = [brothers[i] for i in castles[c][3]]
-    print castlebrothers
-    
-    arrowstrength = sum([i[1] for i in castlebrothers])
-    closestrength = sum([i[2] for i in castlebrothers])
 
-    print "%s arrow strength: %s" % (castles[c][0], arrowstrength)
-    print "%s close strength: %s" % (castles[c][0], closestrength)
+    #Add up all the strength of the brothers in the castle
+    solutionarrowstrength = sum([i[1] for i in castlebrothers])
+    solutionclosestrength = sum([i[2] for i in castlebrothers])
+    #print "%s arrow strength: %s" % (castles[c][0], solutionarrowstrength)
+    #print "%s close strength: %s" % (castles[c][0], solutionclosestrength)
 
-  """
-  One way to determine cost is to subtract arrow strength from optimal arrow strength.
-  So, if we got an arrow strength at eastwatch of 34, and optimal is 54, the cost is 54 - 34 = 20.
-  But wait, what if it happens that we allocate too much, so like eastwatch got 74 and optimal is 54.
-  54 - 74 is -20. The # 20 shows up again. We could just normalize everything to a +ive int.
-  Because (I *think*) whether we over allocated or under allocated doesn't actually matter does it? They're
-  both just a mis-allocation of X amount.
-  """
+    #Normalize the number to be always non-negativei - abs(). B/C whether 
+    #the solution over or under supplies the castle is irrelevant (I think)
+    cost += abs(optimalarrowstrength - solutionarrowstrength)
+    cost += abs(optimalclosestrength - solutionclosestrength)
 
+  return cost
 
+#optimization.geneticoptimize(domain, defendcost)
+#optimization.annealingoptimize(domain, defendcost)
+#optimization.hillclimb(domain, defendcost)
+#optimization.randomoptimize(domain, defendcost)
