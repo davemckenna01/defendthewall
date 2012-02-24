@@ -54,6 +54,9 @@ brothers = [
 #from the brothers list, and the value of a slot 
 #represents the castle that brother is assigned to
 
+#So, there are len(castles)**len(brothers) possibilities,
+#which at the time of writing = 3**34 = A SHITLOAD (like trillions)
+
 #What the domain looks like
 # [(0,2),(0,2),(0,2),(0,2),(0,2),(0,2),(0,2)...]
 domain = [(0,2)] * len(brothers)
