@@ -130,3 +130,10 @@ def printdefense(vec):
 #optimization.hillclimb(domain, defendcost)
 #optimization.randomoptimize(domain, defendcost)
 
+def main():
+  s = optimization.geneticoptimize(domain, defendcost)
+  printdefense(s)
+
+if __name__ == "__main__":
+    import profile
+    profile.run("main()")
